@@ -12,20 +12,17 @@
 #define RECEIVER
 
 // Arduino digital pins
-#define BUTTON_PIN  2
 #define LED_PIN  13
-#define RX_PIN  7
-
+#define TRIGGER_PIN  7
+#define TRIGGER_PERDIOD 1000
+#define STOP_RX_PERIOD 2000
 
 void setup()
 {
-  pinMode(BUTTON_PIN, INPUT);
+
   pinMode(LED_PIN, OUTPUT);
-  
-  pinMode(RX_PIN,OUTPUT);
-  digitalWrite(RX_PIN,LOW);
- 
-  
+  pinMode(TRIGGER_PIN,OUTPUT);
+  digitalWrite(TRIGGER_PIN,LOW);
   digitalWrite(LED_PIN, LOW);
 
   Serial.begin(1200);  // Hardware supports up to 2400, but 1200 gives longer range
@@ -35,7 +32,7 @@ void setup()
 void loop()
 {
 
-  writeUInt(158); // Put any number you want to send here
+  writeUInt(158); // byte to transmit
   digitalWrite(LED_PIN, HIGH);
   
 }
@@ -43,13 +40,15 @@ void loop()
 
 #ifdef RECEIVER
 int cnt = 0;
-int threshold = 20;
+int threshold = 15;
 void loop()
 {
   boolean light_led = false;
+  int whileLoopCnt;
+  bool readyToReceive = true;
 
   
-  if (readUInt(true) == 158) // Check to see if we got the test number
+  if (readUInt(true) == 158 && readyToReceive) // Check to see if we got the test number
   {
     
     cnt++;
@@ -67,10 +66,19 @@ void loop()
   {
     light_led = false;
     digitalWrite(LED_PIN, HIGH);
-    digitalWrite(RX_PIN, HIGH);
-    delay(50);
-    digitalWrite(RX_PIN, LOW);
+    digitalWrite(TRIGGER_PIN, HIGH);
+    
+    //stay in the while loop and discard other messages during this period
+    delay(TRIGGER_PERDIOD);
+    
+    digitalWrite(TRIGGER_PIN, LOW);
     digitalWrite(LED_PIN, LOW);
+    
+    
+     //stay in the while loop and discard other messages during this period
+     delay(STOP_RX_PERIOD);
+
+    
   }
   
 }

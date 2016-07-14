@@ -15,7 +15,8 @@
 #define LED_PIN  13
 #define TRIGGER_PIN  7
 #define TRIGGER_PERDIOD 1000
-#define STOP_RX_PERIOD 2000
+#define STOP_RX_PERIOD 5000
+#define WAIT_B4_TRIGGER 5000
 
 void setup()
 {
@@ -32,7 +33,9 @@ void setup()
 void loop()
 {
 
+  
   writeUInt(158); // byte to transmit
+  delay(10);
   digitalWrite(LED_PIN, HIGH);
   
 }
@@ -40,7 +43,7 @@ void loop()
 
 #ifdef RECEIVER
 int cnt = 0;
-int threshold = 15;
+int threshold = 5;
 void loop()
 {
   boolean light_led = false;
@@ -65,7 +68,9 @@ void loop()
   if (light_led)
   {
     light_led = false;
+    //wait a bit of time before triggerint the ball machine
     digitalWrite(LED_PIN, HIGH);
+    delay(WAIT_B4_TRIGGER);
     digitalWrite(TRIGGER_PIN, HIGH);
     
     //stay in the while loop and discard other messages during this period
